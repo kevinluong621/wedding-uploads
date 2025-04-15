@@ -12,17 +12,14 @@
       justify-content: center;
       margin-top: 20px;
     }
-    .gallery img,
-    .gallery video {
+    .gallery img {
       width: 150px;
       margin: 10px;
       border-radius: 10px;
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
       transition: transform 0.2s;
-      object-fit: cover;
     }
-    .gallery img:hover,
-    .gallery video:hover {
+    .gallery img:hover {
       transform: scale(1.05);
     }
   </style>
@@ -41,12 +38,14 @@
   <div id="gallery" class="gallery"></div>
 
   <script>
-    const cloudName = "djt6ardqq";
-    const uploadPreset = "unsigned_upload";
+    const cloudName = "djt6ardqq"; // Your Cloudinary cloud name
+    const uploadPreset = "unsigned_upload"; // Your Cloudinary unsigned preset
 
+    // Upload images to Cloudinary
     document.getElementById('uploadButton').addEventListener('click', async () => {
       const files = document.getElementById("fileInput").files;
       const statusText = document.getElementById("statusText");
+      const gallery = document.getElementById("gallery");
 
       if (!files.length) {
         statusText.textContent = "Please select at least one file!";
@@ -55,12 +54,13 @@
 
       statusText.textContent = "Uploading...";
 
+      const uploadResults = [];
+
       for (let file of files) {
         const formData = new FormData();
         formData.append("file", file);
         formData.append("upload_preset", uploadPreset);
         formData.append("folder", "wedding-uploads");
-        formData.append("tags", "wedding-gallery");
 
         try {
           const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
@@ -69,10 +69,7 @@
           });
 
           const data = await response.json();
-
-          // Add media to gallery
-          addToGallery(data);
-
+          uploadResults.push(data.secure_url);
         } catch (err) {
           console.error("Upload failed for one file:", err);
           statusText.textContent = "❌ One or more uploads failed. Please try again.";
@@ -80,46 +77,37 @@
         }
       }
 
-      statusText.textContent = `✅ Upload complete! 🎉`;
-      loadGallery(); // Optional: refresh from Cloudinary after upload
+      statusText.textContent = `✅ Upload complete! ${uploadResults.length} file(s) uploaded 🎉`;
+      loadGallery(); // Reload gallery to show new uploads
+
+      // Add uploaded images to gallery
+      uploadResults.forEach(url => {
+        const img = document.createElement("img");
+        img.src = url;
+        img.alt = "Uploaded memory";
+        gallery.appendChild(img);
+      });
     });
 
-    // Display media in the gallery
-    function addToGallery(resource) {
-      const gallery = document.getElementById("gallery");
-      const isImage = resource.resource_type === "image";
-      const mediaElement = isImage
-        ? document.createElement("img")
-        : document.createElement("video");
-
-      mediaElement.src = resource.secure_url;
-      mediaElement.alt = "Guest memory";
-      if (!isImage) mediaElement.controls = true;
-
-      gallery.appendChild(mediaElement);
-    }
-
-    // Load gallery from Cloudinary using tag
+    // Load existing gallery images from Cloudinary
     async function loadGallery() {
       const gallery = document.getElementById("gallery");
       gallery.innerHTML = "Loading gallery...";
 
       try {
-        const response = await fetch("https://res.cloudinary.com/djt6ardqq/image/list/wedding-gallery.json");
+        const response = await fetch("https://res.cloudinary.com/djt6ardqq/image/list/wedding-uploads.json");
         const data = await response.json();
-        gallery.innerHTML = "";
 
+        gallery.innerHTML = ""; // Clear loading text
+
+        // Loop through the resources and add images to the gallery
         data.resources.forEach(resource => {
-          const isImage = resource.resource_type === "image" || resource.format.match(/jpg|png|jpeg|gif/i);
-          const media = isImage
-            ? document.createElement("img")
-            : document.createElement("video");
+          const img = document.createElement("img");
 
-          media.src = `https://res.cloudinary.com/${cloudName}/${resource.resource_type}/upload/w_300/${resource.public_id}.${resource.format}`;
-          media.alt = "Guest memory";
-          if (!isImage) media.controls = true;
-
-          gallery.appendChild(media);
+          // Use the secure_url for images
+          img.src = resource.secure_url;
+          img.alt = "Guest memory";
+          gallery.appendChild(img);
         });
 
       } catch (err) {
@@ -128,7 +116,7 @@
       }
     }
 
-    // Load gallery on page load
+    // Automatically load gallery on page load
     window.onload = loadGallery;
   </script>
 </body>
