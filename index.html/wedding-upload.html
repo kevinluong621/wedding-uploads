@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wedding Uploads</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+    h2 { color: #333; }
+    input { margin: 20px; }
+    button { padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h2>Upload your photo or video for the Wedding!</h2>
+  <input type="file" id="fileInput" accept="image/*,video/*">
+  <br>
+  <button onclick="uploadFile()">Upload</button>
+  <p id="status"></p>
+
+  <!-- Firebase SDKs and Application Code -->
+  <script type="module">
+    // Import the functions you need from Firebase SDK
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+    import { getStorage, ref, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
+
+    // Paste your Firebase config here:
+    const firebaseConfig = {
+      apiKey: "AIzaSyBgNDqL4eqay--CBcX6iiFncEUKUVfR6Sc",
+      authDomain: "wedding-uploads-vk.firebaseapp.com",
+      projectId: "wedding-uploads-vk",
+      storageBucket: "wedding-uploads-vk.firebasestorage.app",
+      messagingSenderId: "932439136828",
+      appId: "1:932439136828:web:458ec3f51100096bcf4139"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const storage = getStorage(app);
+
+    // Function to handle file upload
+    window.uploadFile = () => {
+      const fileInput = document.getElementById("fileInput");
+      const file = fileInput.files[0];
+      if (!file) {
+        alert("Please select a file first.");
+        return;
+      }
+
+      // Define a storage reference – here, files will be stored in "wedding-uploads/" folder
+      const storageRef = ref(storage, 'wedding-uploads/' + file.name);
+
+      // Start the file upload
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on('state_changed', 
+        (snapshot) => {
+          // Calculate upload progress
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          document.getElementById("status").innerText = `Upload is ${progress.toFixed(0)}% done`;
+        }, 
+        (error) => {
+          // Handle any errors during upload
+          document.getElementById("status").innerText = "Upload failed!";
+          console.error(error);
+        }, 
+        () => {
+          // On successful upload
+          document.getElementById("status").innerText = "Upload successful!";
+          fileInput.value = ""; // Reset the file input
+        }
+      );
+    }
+  </script>
+</body>
+</html>
