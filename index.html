@@ -96,6 +96,10 @@
 
       try {
         const response = await fetch("https://res.cloudinary.com/djt6ardqq/image/list/wedding-uploads.json");
+        
+        // Debug: Log the response to check what is returned
+        console.log("Cloudinary Response:", await response.json());
+
         const data = await response.json();
 
         gallery.innerHTML = ""; // Clear loading text
