@@ -6,29 +6,50 @@
   <title>Upload Your Wedding Memories</title>
   <style>
     body {
-      font-family: sans-serif;
+      font-family: 'Georgia', serif;
+      background: url('https://www.wedding-photos.com/wedding-background.jpg') no-repeat center center fixed;
+      background-size: cover;
+      color: #fff;
+      padding: 2rem;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
-      padding: 2rem;
-      background: #fefefe;
-      color: #333;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
     h1 {
-      text-align: center;
+      font-size: 2.5rem;
       margin-bottom: 1rem;
+      text-align: center;
+      font-family: 'Lobster', cursive;
     }
     .upload-box {
-      border: 2px dashed #ccc;
-      padding: 2rem;
+      border: 2px solid #fff;
       border-radius: 10px;
+      padding: 2rem;
+      background-color: rgba(255, 255, 255, 0.7);
       width: 100%;
       max-width: 400px;
       text-align: center;
-      background: #fafafa;
     }
     input[type="file"] {
       margin: 1rem 0;
+      padding: 0.5rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #FF69B4;
+      color: white;
+      padding: 0.8rem 2rem;
+      border: none;
+      border-radius: 30px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      transition: all 0.3s ease;
+    }
+    button:hover {
+      background-color: #FF1493;
     }
     .progress {
       width: 100%;
@@ -47,12 +68,20 @@
     .success {
       color: green;
       font-weight: bold;
+      font-size: 1.2rem;
+    }
+    #statusText {
+      font-size: 1.1rem;
+      font-weight: bold;
     }
   </style>
+  <!-- Google Fonts for custom fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Georgia&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>Upload Your Photos & Videos 📸🎥</h1>
+  <h1>💍 Share Your Wedding Memories 💕</h1>
   <div class="upload-box">
+    <p>Please upload your photos or videos to share with us! Thank you for being a part of our special day! 😍</p>
     <input type="file" id="fileInput" accept="image/*,video/*" />
     <button onclick="uploadFile()">Upload</button>
 
@@ -102,7 +131,7 @@
           statusText.textContent = 'Upload failed: ' + error.message;
         }, 
         () => {
-          statusText.textContent = '✅ Upload complete! Thank you 🎉';
+          statusText.textContent = '✅ Upload complete! Thank you so much for sharing your memories with us! 🎉';
           fileInput.value = '';
           progressBar.style.width = '0%';
         }
