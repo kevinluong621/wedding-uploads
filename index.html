@@ -17,17 +17,11 @@
       align-items: center;
       text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 1rem;
-      text-align: center;
-      font-family: 'Lobster', cursive;
-    }
     .upload-box {
       border: 2px solid #fff;
       border-radius: 10px;
       padding: 2rem;
-      background-color: rgba(255, 255, 255, 0.7);
+      background-color: rgba(255, 255, 255, 0.8);
       width: 100%;
       max-width: 400px;
       text-align: center;
@@ -46,97 +40,59 @@
       border-radius: 30px;
       cursor: pointer;
       font-size: 1.1rem;
-      transition: all 0.3s ease;
     }
     button:hover {
       background-color: #FF1493;
     }
-    .progress {
-      width: 100%;
-      background: #eee;
-      height: 20px;
-      border-radius: 10px;
-      overflow: hidden;
-      margin: 1rem 0;
-    }
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: #4caf50;
-      transition: width 0.3s ease;
-    }
-    .success {
-      color: green;
-      font-weight: bold;
-      font-size: 1.2rem;
-    }
     #statusText {
-      font-size: 1.1rem;
+      margin-top: 1rem;
       font-weight: bold;
     }
   </style>
-  <!-- Google Fonts for custom fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Georgia&display=swap" rel="stylesheet">
 </head>
 <body>
   <h1>💍 Share Your Wedding Memories 💕</h1>
   <div class="upload-box">
-    <p>Please upload your photos or videos to share with us! Thank you for being a part of our special day! 😍</p>
-    <input type="file" id="fileInput" accept="image/*,video/*" />
-    <button onclick="uploadFile()">Upload</button>
-
-    <div class="progress">
-      <div class="progress-bar" id="progressBar"></div>
-    </div>
+    <p>Please upload your photos or videos! Thank you for being part of our special day! 😍</p>
+    <input type="file" id="fileInput" accept="image/*,video/*">
+    <button onclick="uploadToCloudinary()">Upload</button>
     <p id="statusText"></p>
   </div>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
-    import { getStorage, ref, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
+  <script>
+    const cloudName = "djt6ardqq"; // Your Cloudinary cloud name
+    const uploadPreset = "unsigned_upload"; // Replace with your preset name if different
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyBgNDqL4eqay--CBcX6iiFncEUKUVfR6Sc",
-      authDomain: "wedding-uploads-vk.firebaseapp.com",
-      projectId: "wedding-uploads-vk",
-      storageBucket: "wedding-uploads-vk.appspot.com",
-      messagingSenderId: "932439136828",
-      appId: "1:932439136828:web:458ec3f51100096bcf4139"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const storage = getStorage(app);
-
-    window.uploadFile = () => {
-      const fileInput = document.getElementById('fileInput');
+    async function uploadToCloudinary() {
+      const fileInput = document.getElementById("fileInput");
+      const statusText = document.getElementById("statusText");
       const file = fileInput.files[0];
-      const statusText = document.getElementById('statusText');
-      const progressBar = document.getElementById('progressBar');
 
       if (!file) {
         statusText.textContent = "Please select a file!";
         return;
       }
 
-      const storageRef = ref(storage, 'uploads/' + file.name);
-      const uploadTask = uploadBytesResumable(storageRef, file);
+      const url = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", uploadPreset);
 
-      uploadTask.on('state_changed', 
-        (snapshot) => {
-          const percent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          progressBar.style.width = percent + '%';
-        }, 
-        (error) => {
-          statusText.textContent = 'Upload failed: ' + error.message;
-        }, 
-        () => {
-          statusText.textContent = '✅ Upload complete! Thank you so much for sharing your memories with us!🎉';
-          fileInput.value = '';
-          progressBar.style.width = '0%';
-        }
-      );
-    };
+      statusText.textContent = "Uploading...";
+
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          body: formData
+        });
+        const data = await response.json();
+        statusText.textContent = "✅ Upload complete! Thank you! 🎉";
+        console.log("Uploaded to:", data.secure_url);
+      } catch (error) {
+        statusText.textContent = "❌ Upload failed. Please try again.";
+        console.error(error);
+      }
+    }
   </script>
 </body>
 </html>
