@@ -5,6 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Upload Your Wedding Memories</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 20px;
+    }
+    .gallery img {
+      width: 150px;
+      margin: 10px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      transition: transform 0.2s;
+    }
+    .gallery img:hover {
+      transform: scale(1.05);
+    }
+  </style>
 </head>
 <body>
   <h1>💍 Share Your Wedding Memories 💕</h1>
@@ -15,6 +33,10 @@
     <p id="statusText"></p>
   </div>
 
+  <!-- Gallery Section -->
+  <h2>📸 Shared Memories</h2>
+  <div id="gallery" class="gallery"></div>
+
   <script>
     const cloudName = "djt6ardqq"; // Your Cloudinary cloud name
     const uploadPreset = "unsigned_upload"; // Your Cloudinary unsigned preset
@@ -22,6 +44,7 @@
     document.getElementById('uploadButton').addEventListener('click', async () => {
       const files = document.getElementById("fileInput").files;
       const statusText = document.getElementById("statusText");
+      const gallery = document.getElementById("gallery");
 
       if (!files.length) {
         statusText.textContent = "Please select at least one file!";
@@ -53,7 +76,14 @@
       }
 
       statusText.textContent = `✅ Upload complete! ${uploadResults.length} file(s) uploaded 🎉`;
-      console.log("Uploaded file URLs:", uploadResults);
+
+      // Add uploaded images to gallery
+      uploadResults.forEach(url => {
+        const img = document.createElement("img");
+        img.src = url;
+        img.alt = "Uploaded memory";
+        gallery.appendChild(img);
+      });
     });
   </script>
 </body>
