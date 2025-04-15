@@ -89,15 +89,18 @@
       });
     });
 
-    // Load existing gallery images from Cloudinary (Accessing the server via local IP)
+    // Load existing gallery images from Cloudinary
     async function loadGallery() {
       const gallery = document.getElementById("gallery");
       gallery.innerHTML = "Loading gallery...";
 
       try {
-        const response = await fetch("http://192.168.x.x:3000/api/gallery"); // Replace with your desktop IP address
+        // Replace this with your local network IP address (e.g., 192.168.x.x)
+        const response = await fetch("http://192.168.x.x:3000/api/gallery"); // Replace with your local IP address
 
+        // Debugging: Log the response to see the raw data
         const data = await response.json();
+        console.log("Raw Cloudinary Response:", data);
 
         gallery.innerHTML = ""; // Clear loading text
 
