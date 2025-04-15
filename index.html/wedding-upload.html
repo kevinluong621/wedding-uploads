@@ -1,76 +1,113 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Wedding Uploads</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Upload Your Wedding Memories</title>
   <style>
-    body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
-    h2 { color: #333; }
-    input { margin: 20px; }
-    button { padding: 10px 20px; font-size: 16px; }
+    body {
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
+      background: #fefefe;
+      color: #333;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    .upload-box {
+      border: 2px dashed #ccc;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      background: #fafafa;
+    }
+    input[type="file"] {
+      margin: 1rem 0;
+    }
+    .progress {
+      width: 100%;
+      background: #eee;
+      height: 20px;
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 1rem 0;
+    }
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #4caf50;
+      transition: width 0.3s ease;
+    }
+    .success {
+      color: green;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
-  <h2>Upload your photo or video for the Wedding!</h2>
-  <input type="file" id="fileInput" accept="image/*,video/*">
-  <br>
-  <button onclick="uploadFile()">Upload</button>
-  <p id="status"></p>
+  <h1>Upload Your Photos & Videos 📸🎥</h1>
+  <div class="upload-box">
+    <input type="file" id="fileInput" accept="image/*,video/*" />
+    <button onclick="uploadFile()">Upload</button>
 
-  <!-- Firebase SDKs and Application Code -->
+    <div class="progress">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <p id="statusText"></p>
+  </div>
+
+  <!-- Firebase SDK -->
   <script type="module">
-    // Import the functions you need from Firebase SDK
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
     import { getStorage, ref, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-storage.js";
 
-    // Paste your Firebase config here:
     const firebaseConfig = {
       apiKey: "AIzaSyBgNDqL4eqay--CBcX6iiFncEUKUVfR6Sc",
       authDomain: "wedding-uploads-vk.firebaseapp.com",
       projectId: "wedding-uploads-vk",
-      storageBucket: "wedding-uploads-vk.firebasestorage.app",
+      storageBucket: "wedding-uploads-vk.appspot.com",
       messagingSenderId: "932439136828",
       appId: "1:932439136828:web:458ec3f51100096bcf4139"
     };
 
-    // Initialize Firebase
     const app = initializeApp(firebaseConfig);
     const storage = getStorage(app);
 
-    // Function to handle file upload
     window.uploadFile = () => {
-      const fileInput = document.getElementById("fileInput");
+      const fileInput = document.getElementById('fileInput');
       const file = fileInput.files[0];
+      const statusText = document.getElementById('statusText');
+      const progressBar = document.getElementById('progressBar');
+
       if (!file) {
-        alert("Please select a file first.");
+        statusText.textContent = "Please select a file!";
         return;
       }
 
-      // Define a storage reference – here, files will be stored in "wedding-uploads/" folder
-      const storageRef = ref(storage, 'wedding-uploads/' + file.name);
-
-      // Start the file upload
+      const storageRef = ref(storage, 'uploads/' + file.name);
       const uploadTask = uploadBytesResumable(storageRef, file);
 
       uploadTask.on('state_changed', 
         (snapshot) => {
-          // Calculate upload progress
-          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          document.getElementById("status").innerText = `Upload is ${progress.toFixed(0)}% done`;
+          const percent = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          progressBar.style.width = percent + '%';
         }, 
         (error) => {
-          // Handle any errors during upload
-          document.getElementById("status").innerText = "Upload failed!";
-          console.error(error);
+          statusText.textContent = 'Upload failed: ' + error.message;
         }, 
         () => {
-          // On successful upload
-          document.getElementById("status").innerText = "Upload successful!";
-          fileInput.value = ""; // Reset the file input
+          statusText.textContent = '✅ Upload complete! Thank you 🎉';
+          fileInput.value = '';
+          progressBar.style.width = '0%';
         }
       );
-    }
+    };
   </script>
 </body>
 </html>
