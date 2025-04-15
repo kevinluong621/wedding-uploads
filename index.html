@@ -38,7 +38,10 @@
   <div id="gallery" class="gallery"></div>
 
   <script>
-    // Upload files to Cloudinary (using frontend or backend)
+    const cloudName = "djt6ardqq"; // Your Cloudinary cloud name
+    const uploadPreset = "unsigned_upload"; // Your Cloudinary unsigned preset
+
+    // Upload images to Cloudinary
     document.getElementById('uploadButton').addEventListener('click', async () => {
       const files = document.getElementById("fileInput").files;
       const statusText = document.getElementById("statusText");
@@ -53,15 +56,14 @@
 
       const uploadResults = [];
 
-      // Upload files to Cloudinary
       for (let file of files) {
         const formData = new FormData();
         formData.append("file", file);
-        formData.append("upload_preset", "unsigned_upload"); // Use your preset
+        formData.append("upload_preset", uploadPreset);
         formData.append("folder", "wedding-uploads");
 
         try {
-          const response = await fetch(`https://api.cloudinary.com/v1_1/djt6ardqq/auto/upload`, {
+          const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
             method: "POST",
             body: formData
           });
@@ -87,36 +89,30 @@
       });
     });
 
-    // Load gallery images from backend (node.js server)
+    // Load existing gallery images from Cloudinary (Accessing the server via local IP)
     async function loadGallery() {
       const gallery = document.getElementById("gallery");
       gallery.innerHTML = "Loading gallery...";
 
       try {
-        const response = await fetch("http://localhost:3000/api/gallery");  // Connect to your backend server
+        const response = await fetch("http://192.168.x.x:3000/api/gallery"); // Replace with your desktop IP address
+
         const data = await response.json();
 
         gallery.innerHTML = ""; // Clear loading text
 
-        if (data && data.length > 0) {
+        if (data.resources && data.resources.length > 0) {
           // Loop through the resources and add images to the gallery
-          data.forEach(resource => {
+          data.resources.forEach(resource => {
             const img = document.createElement("img");
 
-            // Add image or video to the gallery
-            if (resource.format === "mp4") {
-              const video = document.createElement("video");
-              video.src = resource.secure_url;
-              video.controls = true;
-              gallery.appendChild(video);
-            } else {
-              img.src = resource.secure_url;
-              img.alt = "Guest memory";
-              gallery.appendChild(img);
-            }
+            // Use the secure_url for images
+            img.src = resource.secure_url;
+            img.alt = "Guest memory";
+            gallery.appendChild(img);
           });
         } else {
-          gallery.innerHTML = "No photos or videos yet! Be the first!";
+          gallery.innerHTML = "No photos yet! Be the first!";
         }
 
       } catch (err) {
